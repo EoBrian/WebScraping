@@ -1,15 +1,9 @@
 import re
-import os
 from threading import Thread
 
 from bs4 import BeautifulSoup
 from requests import get
 
-TELEFONES = []
-LINKS = []
-
-URL_AUTOMOVEIS = 'https://django-anuncios.solyd.com.br/automoveis/'
-DOMINIO = 'https://django-anuncios.solyd.com.br'
 
 #FAZENDO A REQUISIÇÃO
 def requisiçãoWeb(url):
@@ -47,7 +41,7 @@ def takeLinks(parsing):
         
     return links
 
-
+#IDENTIFICA O NÚMERO NO SITE DO ANUNCIO COM A FUNÇÃO REGEX
 def buscar_telefone(text):
     try:
         telefone = text.find_all('div', class_='sixteen wide column')[2].p.get_text().strip()
@@ -59,17 +53,17 @@ def buscar_telefone(text):
     if regex:
         return regex
 
-
-def descobrirTelefone():
+#PEGA O TELEFONE E O COLOCA NA LISTA 'TELEFONE'
+def descobrirTelefone(lista_links, dominio, lista_telefone):
     
     while True:
         try:
-            link_anuncio = LINKS.pop(0)
+            link_anuncio = lista_links.pop(0)
         
         except:
             return None
 
-        procurar_telefone = requisiçãoWeb(DOMINIO + link_anuncio)
+        procurar_telefone = requisiçãoWeb(dominio + link_anuncio)
             
         if procurar_telefone:
             telefone_texto = parsingHTML(procurar_telefone)
@@ -79,9 +73,9 @@ def descobrirTelefone():
 
                 if telefones:
                     for telefone in telefones:
-                        TELEFONES.append(telefone)
+                        lista_telefone.append(telefone)
 
-
+#FAZENDO MAIS DE UMA REQUISIÇÃO AO MESMO TEMPO
 def processos(função):
     processo_1 = Thread(target= função)
     processo_2 = Thread(target= função)
@@ -93,16 +87,3 @@ def processos(função):
     processo_2.join()
 
 
-if __name__ == '__main__':
-    os.system('cls')
-
-    buscando_site = requisiçãoWeb(URL_AUTOMOVEIS)
-    if buscando_site:
-
-        site_texto = parsingHTML(buscando_site)
-        if site_texto:
-
-            LINKS = takeLinks(site_texto)
-            processos(descobrirTelefone)
-
-            print(TELEFONES)

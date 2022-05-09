@@ -1,9 +1,9 @@
 import re
 from threading import Thread
+import threading
 
 from bs4 import BeautifulSoup
 from requests import get
-
 
 #FAZENDO A REQUISIÇÃO
 def requisiçãoWeb(url):
@@ -73,17 +73,30 @@ def descobrirTelefone(lista_links, dominio, lista_telefone):
 
                 if telefones:
                     for telefone in telefones:
-                        lista_telefone.append(telefone)
+                        salvarTelefone(telefone)
+                        lista_telefone.append(telefone)                       
 
 #FAZENDO MAIS DE UMA REQUISIÇÃO AO MESMO TEMPO
 def processos(função):
-    processo_1 = Thread(target= função)
-    processo_2 = Thread(target= função)
+    THREADS = []
+    for contador in range(10):
+        thread = threading.Thread(target=função)
+        THREADS.append(thread)
 
-    processo_1.start()
-    processo_2.start()
-    
-    processo_1.join()
-    processo_2.join()
+    for thread in THREADS:
+        thread.start()
 
+    for thread in THREADS:
+        thread.join()
+
+#SALVA TODOS OS CONTATOS EM UM ARQUIVO CSV
+def salvarTelefone(telefone):
+    string_lista = f'{telefone[0]}{telefone[1]}{telefone[2]}\n'
+
+    try:
+        with open('lista_telefones.csv', 'a') as file:
+            file.write(string_lista)
+
+    except Exception as error:
+        print(f'>>> O erro {error} ocorreu ao salvar a lista')
 

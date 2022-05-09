@@ -1,6 +1,7 @@
 import apps
 import os
 
+
 TELEFONES = []
 LINKS = []
 
@@ -19,5 +20,5 @@ if __name__ == '__main__':
 
             LINKS = apps.takeLinks(site_texto)
             apps.processos(apps.descobrirTelefone(LINKS,DOMINIO,TELEFONES))
-
+            
             print(TELEFONES)
